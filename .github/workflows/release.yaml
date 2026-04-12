@@ -48,7 +48,6 @@ jobs:
           - riscv64-unknown-linux-gnu
           - s390-ibm-linux-gnu
           - s390x-ibm-linux-gnu
-          - sh3-multilib-linux-gnu
           - sh4-multilib-linux-gnu
           - sparc-unknown-linux-gnu
           - sparc64-multilib-linux-gnu
