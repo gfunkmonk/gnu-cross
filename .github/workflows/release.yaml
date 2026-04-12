@@ -1,11 +1,9 @@
 name: Release
-
-on:
-  workflow_dispatch:
+'on':
+  workflow_dispatch: null
   release:
     types:
       - published
-
 jobs:
   build:
     name: Build
@@ -15,31 +13,45 @@ jobs:
       matrix:
         target:
           - aarch64-unknown-linux-gnu
+          - alpha-unknown-linux-gnu
           - arm-unknown-linux-gnueabi
           - arm-unknown-linux-gnueabihf
+          - arm4t-unknown-linux-gnueabi
+          - armv5-unknown-linux-gnueabi
+          - armv6-unknown-linux-gnueabi
+          - armv6-unknown-linux-gnueabihf
           - armv7-unknown-linux-gnueabi
           - armv7-unknown-linux-gnueabihf
+          - hppa-unknown-linux-gnu
+          - i386-unknown-linux-gnu
+          - i486-unknown-linux-gnu
           - i586-unknown-linux-gnu
           - i686-unknown-linux-gnu
           - loongarch64-unknown-linux-gnu
           - m68k-unknown-linux-gnu
-          - microblazeel-xilinx-linux-gnu
           - microblaze-xilinx-linux-gnu
-          - mipsel-unknown-linux-gnu
-          - mipsel-unknown-linux-gnusf
+          - microblazeel-xilinx-linux-gnu
           - mips-unknown-linux-gnu
           - mips-unknown-linux-gnusf
-          - mips64el-unknown-linux-gnu
           - mips64-unknown-linux-gnu
+          - mips64el-unknown-linux-gnu
+          - mipsel-unknown-linux-gnu
+          - mipsel-unknown-linux-gnusf
           - or1k-unknown-linux-gnu
-          - powerpcle-unknown-linux-gnu
           - powerpc-unknown-linux-gnu
-          - powerpc64le-unknown-linux-gnu
+          - powerpc-unknown-linux-gnusf
           - powerpc64-unknown-linux-gnu
+          - powerpc64le-unknown-linux-gnu
+          - powerpcle-unknown-linux-gnu
+          - powerpcle-unknown-linux-gnusf
           - riscv32-unknown-linux-gnu
           - riscv64-unknown-linux-gnu
+          - s390-ibm-linux-gnu
           - s390x-ibm-linux-gnu
+          - sh3-multilib-linux-gnu
           - sh4-multilib-linux-gnu
+          - sparc-unknown-linux-gnu
+          - sparc64-multilib-linux-gnu
           - x86_64-unknown-linux-gnu
     steps:
       - name: Checkout
@@ -54,18 +66,17 @@ jobs:
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.target }}.tar.xz
-          path: ${{ matrix.target }}.tar.xz
+          name: '${{ matrix.target }}.tar.xz'
+          path: '${{ matrix.target }}.tar.xz'
           if-no-files-found: error
           retention-days: 1
       - name: Upload checksum
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.target }}.tar.xz.sha256
-          path: ${{ matrix.target }}.tar.xz.sha256
+          name: '${{ matrix.target }}.tar.xz.sha256'
+          path: '${{ matrix.target }}.tar.xz.sha256'
           if-no-files-found: error
           retention-days: 1
-
   release:
     name: Release
     runs-on: ubuntu-22.04
@@ -81,7 +92,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: release
-          pattern: "*.tar.*"
+          pattern: '*.tar.*'
           merge-multiple: true
       - name: Generate checksums
         run: |
@@ -92,7 +103,7 @@ jobs:
           done
       - name: Upload artifacts
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         run: |
           for i in release/*.tar.xz; do
             gh release upload ${{ github.event.release.tag_name }} $i $i.sha256
