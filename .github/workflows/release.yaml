@@ -1,6 +1,5 @@
 name: Release
 'on':
-  workflow_dispatch: null
   workflow_dispatch:
     inputs:
       freespace:
