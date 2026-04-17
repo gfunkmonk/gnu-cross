@@ -39,7 +39,7 @@ jobs:
       matrix:
         target:
           #- aarch64-unknown-linux-gnu
-          - aarch64_be-unknown-linux-gnu
+          #- aarch64_be-unknown-linux-gnu
           #- alphaev56-unknown-linux-gnu
           #- alphaev67-unknown-linux-gnu
           #- arm-unknown-linux-gnueabi
@@ -54,6 +54,7 @@ jobs:
           #- i486-unknown-linux-gnu
           #- i586-unknown-linux-gnu
           #- i686-unknown-linux-gnu
+          - loongarch32-unknown-linux-gnu
           #- loongarch64-unknown-linux-gnu
           #- m68k-unknown-linux-gnu
           #- microblaze-xilinx-linux-gnu
