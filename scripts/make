@@ -32,7 +32,8 @@ sudo apt-get install -y --no-install-recommends \
   texinfo \
   unzip \
   wget \
-  xz-utils
+  xz-utils \
+  zstd
 
 # patch
 pushd builder
