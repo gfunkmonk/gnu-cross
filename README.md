@@ -7,6 +7,7 @@ This is a simple, lightweight project for making cross-compilation toolchain wit
 | Target                        | Kernel  | Binutils | GCC    | Glibc | Mold   |
 |-------------------------------|---------|----------|--------|-------|--------|
 | aarch64-unknown-linux-gnu     | 6.18.22 | 2.46     | 15.2.0 | 2.43  | 2.41.0 |
+| aarch64_be-unknown-linux-gnu  | 6.18.22 | 2.46     | 15.2.0 | 2.43  | 2.41.0 |
 | alphaev56-unknown-linux-gnu   | 6.18.22 | 2.46     | 15.2.0 | 2.43  | 2.41.0 |
 | alphaev67-unknown-linux-gnu   | 6.18.22 | 2.46     | 15.2.0 | 2.43  | 2.41.0 |
 | arm-unknown-linux-gnueabi     | 6.18.22 | 2.46     | 15.2.0 | 2.43  | 2.41.0 |
@@ -17,6 +18,7 @@ This is a simple, lightweight project for making cross-compilation toolchain wit
 | armv6-unknown-linux-gnueabihf | 6.18.22 | 2.46     | 15.2.0 | 2.43  | 2.41.0 |
 | armv7-unknown-linux-gnueabi   | 6.18.22 | 2.46     | 15.2.0 | 2.43  | 2.41.0 |
 | armv7-unknown-linux-gnueabihf | 6.18.22 | 2.46     | 15.2.0 | 2.43  | 2.41.0 |
+| hppa-unknown-linux-gnu        | 6.18.22 | 2.46     | 15.2.0 | 2.43  | 2.41.0 |
 | i486-unknown-linux-gnu        | 6.18.22 | 2.46     | 15.2.0 | 2.43  | 2.41.0 |
 | i586-unknown-linux-gnu        | 6.18.22 | 2.46     | 15.2.0 | 2.43  | 2.41.0 |
 | i686-unknown-linux-gnu        | 6.18.22 | 2.46     | 15.2.0 | 2.43  | 2.41.0 |
