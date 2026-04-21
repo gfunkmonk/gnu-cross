@@ -85,7 +85,7 @@ jobs:
           #- s390x-ibm-linux-gnu
           #- sh4-multilib-linux-gnu
           - sparc-unknown-linux-gnu
-          #- sparc64-unknown-linux-gnu
+          - sparc64-unknown-linux-gnu
           #- x86_64-unknown-linux-gnu
     steps:
       - if: '${{ inputs.freespace }}'
