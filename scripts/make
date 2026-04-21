@@ -84,6 +84,9 @@ popd
 if [[ "$TARGET" == "hppa64" ]]; then
   sudo mv /opt/x-tools/hppa /opt/x-tools/hppa64
   sudo mv /opt/x-tools/"${TARGET}" .
+elif [[ "$TARGET" == "parisc64" ]]; then
+  sudo mv /opt/x-tools/hppa /opt/x-tools/hppa64
+  sudo mv /opt/x-tools/"${TARGET}" .
 else
   sudo mv /opt/x-tools/"${TARGET}" .
 fi
