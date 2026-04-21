@@ -127,7 +127,7 @@ jobs:
           CCACHE_INODECACHE=true
           CCACHE_NLEVELS=4
           CCACHE_COMPILERCHECK=content
-          CCACHE_DEPEND=false
+          #CCACHE_DEPEND=false
           CCACHE_DIRECT=true
           EOF
 
