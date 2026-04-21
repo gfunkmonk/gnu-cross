@@ -43,7 +43,8 @@ sudo apt-get install -y --no-install-recommends \
   unzip \
   wget \
   xz-utils \
-  libzstd-dev
+  libzstd-dev \
+  libatomic1
 
 # patch
 pushd builder
