@@ -18,11 +18,19 @@ name: Fornicate
         required: false
         options: [3, 5, 10]
         default: 5
-      target_build:
-        description: Target?
-        type: choice
+      sshserver:
+        description: Run SSH Server before build
         required: true
-        options: [ aarch64-unknown-linux-gnu, aarch64_be-unknown-linux-gnu, alphaev56-unknown-linux-gnu, alphaev67-unknown-linux-gnu, arm-unknown-linux-gnueabi, arm-unknown-linux-gnueabihf, armv4t-unknown-linux-gnueabi, armv5-unknown-linux-gnueabi, armv6-unknown-linux-gnueabi, armv6-unknown-linux-gnueabihf, armv7-unknown-linux-gnueabi, armv7-unknown-linux-gnueabihf, hppa-unknown-linux-gnu, hppa64-unknown-linux-gnu, i486-unknown-linux-gnu, i586-unknown-linux-gnu, i686-unknown-linux-gnu, loongarch32-unknown-linux-gnu, loongarch64-unknown-linux-gnu, m68k-unknown-linux-gnu, microblaze-xilinx-linux-gnu, microblazeel-xilinx-linux-gnu, mips-unknown-linux-gnu, mips-unknown-linux-gnusf, mips64-unknown-linux-gnu, mips64el-unknown-linux-gnu, mipsel-unknown-linux-gnu, mipsel-unknown-linux-gnusf, or1k-unknown-linux-gnu, powerpc-unknown-linux-gnu, powerpc-unknown-linux-gnusf, powerpc64-unknown-linux-gnu, powerpc64le-unknown-linux-gnu, powerpcle-unknown-linux-gnu, powerpcle-unknown-linux-gnusf, riscv32-unknown-linux-gnu, riscv64-unknown-linux-gnu, s390-ibm-linux-gnu, s390x-ibm-linux-gnu, sh4-multilib-linux-gnu, sparc-unknown-linux-gnu, sparc64-unknown-linux-gnu, x86_64-unknown-linux-gnu ]
+        type: boolean
+        default: false
+      make_release:
+        description: GitHub Release?
+        type: boolean
+        default: false
+      release_name:
+        description: Release name?
+        type: string
+        default: ''
 concurrency:
   group: '${{ github.workflow }}-${{ github.ref }}'
   cancel-in-progress: true
@@ -36,7 +44,49 @@ jobs:
       fail-fast: false
       matrix:
         target:
-          - '${{ inputs.target_build }}'
+          #- aarch64-unknown-linux-gnu
+          #- aarch64_be-unknown-linux-gnu
+          #- alphaev56-unknown-linux-gnu
+          #- alphaev67-unknown-linux-gnu
+          #- arm-unknown-linux-gnueabi
+          #- arm-unknown-linux-gnueabihf
+          #- armv4t-unknown-linux-gnueabi
+          #- armv5-unknown-linux-gnueabi
+          #- armv6-unknown-linux-gnueabi
+          #- armv6-unknown-linux-gnueabihf
+          #- armv7-unknown-linux-gnueabi
+          #- armv7-unknown-linux-gnueabihf
+          #- hppa-unknown-linux-gnu
+          - hppa64-unknown-linux-gnu
+          #- i486-unknown-linux-gnu
+          #- i586-unknown-linux-gnu
+          #- i686-unknown-linux-gnu
+          #- loongarch32-unknown-linux-gnu
+          #- loongarch64-unknown-linux-gnu
+          #- m68k-unknown-linux-gnu
+          #- microblaze-xilinx-linux-gnu
+          #- microblazeel-xilinx-linux-gnu
+          #- mips-unknown-linux-gnu
+          #- mips-unknown-linux-gnusf
+          #- mips64-unknown-linux-gnu
+          #- mips64el-unknown-linux-gnu
+          #- mipsel-unknown-linux-gnu
+          #- mipsel-unknown-linux-gnusf
+          #- or1k-unknown-linux-gnu
+          #- powerpc-unknown-linux-gnu
+          #- powerpc-unknown-linux-gnusf
+          #- powerpc64-unknown-linux-gnu
+          #- powerpc64le-unknown-linux-gnu
+          #- powerpcle-unknown-linux-gnu
+          #- powerpcle-unknown-linux-gnusf
+          #- riscv32-unknown-linux-gnu
+          #- riscv64-unknown-linux-gnu
+          #- s390-ibm-linux-gnu
+          #- s390x-ibm-linux-gnu
+          #- sh4-multilib-linux-gnu
+          #- sparc-unknown-linux-gnu
+          #- sparc64-unknown-linux-gnu
+          #- x86_64-unknown-linux-gnu
     steps:
       - if: '${{ inputs.freespace }}'
         name: Free Up Disk Space
