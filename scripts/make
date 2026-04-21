@@ -16,6 +16,7 @@ fi
 
 # packages
 sudo apt-get update
+sudo apt-get upgrade
 sudo apt-get install -y --no-install-recommends \
   automake \
   bison \
@@ -80,7 +81,12 @@ pushd build
 popd
 
 # tarball
-sudo mv /opt/x-tools/"${TARGET}" .
+if [[ "$TARGET" == "hppa64" ]]; then
+  sudo mv /opt/x-tools/hppa /opt/x-tools/hppa64
+  sudo mv /opt/x-tools/"${TARGET}" .
+else
+  sudo mv /opt/x-tools/"${TARGET}" .
+fi
 sudo chown -R root:root "${TARGET}"
 env XZ_OPT="-T0" sudo tar -cJvf "${TARGET}".tar.xz "${TARGET}"
 sudo sha256sum "${TARGET}".tar.xz | awk '{ print $1 }' > "${TARGET}".tar.xz.sha256

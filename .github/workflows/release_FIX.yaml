@@ -84,7 +84,7 @@ jobs:
           #- s390-ibm-linux-gnu
           #- s390x-ibm-linux-gnu
           #- sh4-multilib-linux-gnu
-          #- sparc-unknown-linux-gnu
+          - sparc-unknown-linux-gnu
           #- sparc64-unknown-linux-gnu
           #- x86_64-unknown-linux-gnu
     steps:
@@ -109,9 +109,14 @@ jobs:
         with:
           fetch-depth: 1
           submodules: true
+      - name: Enable Kitware Repository
+        run: |
+          test -f /usr/share/doc/kitware-archive-keyring/copyright || wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
+          echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ noble main' | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
       - name: CCACHE Shit
         run: |
           DEBIAN_FRONTEND=noninteractive sudo apt-get -y update
+          DEBIAN_FRONTEND=noninteractive sudo apt-get -y upgrade
           DEBIAN_FRONTEND=noninteractive sudo apt-get -y install apt-utils ccache ca-certificates gpg wget libzstd-dev
 
           cat >> $GITHUB_ENV << 'EOF'
