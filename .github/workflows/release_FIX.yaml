@@ -56,12 +56,12 @@ jobs:
           #- armv6-unknown-linux-gnueabihf
           #- armv7-unknown-linux-gnueabi
           #- armv7-unknown-linux-gnueabihf
-          #- hppa-unknown-linux-gnu
-          - hppa64-unknown-linux-gnu
+          - hppa-unknown-linux-gnu
+          #- hppa64-unknown-linux-gnu
           #- i486-unknown-linux-gnu
           #- i586-unknown-linux-gnu
           #- i686-unknown-linux-gnu
-          - loongarch32-unknown-linux-gnu
+          #- loongarch32-unknown-linux-gnu
           #- loongarch64-unknown-linux-gnu
           #- m68k-unknown-linux-gnu
           #- microblaze-xilinx-linux-gnu
