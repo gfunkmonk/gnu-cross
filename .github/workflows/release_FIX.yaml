@@ -57,7 +57,7 @@ jobs:
           #- armv7-unknown-linux-gnueabi
           #- armv7-unknown-linux-gnueabihf
           #- hppa-unknown-linux-gnu
-          #- hppa64-unknown-linux-gnu
+          - hppa64-unknown-linux-gnu
           #- i486-unknown-linux-gnu
           #- i586-unknown-linux-gnu
           #- i686-unknown-linux-gnu
@@ -84,8 +84,8 @@ jobs:
           #- s390-ibm-linux-gnu
           #- s390x-ibm-linux-gnu
           #- sh4-multilib-linux-gnu
-          - sparc-unknown-linux-gnu
-          - sparc64-unknown-linux-gnu
+          #- sparc-unknown-linux-gnu
+          #- sparc64-unknown-linux-gnu
           #- x86_64-unknown-linux-gnu
     steps:
       - if: '${{ inputs.freespace }}'
