@@ -46,8 +46,6 @@ jobs:
         target:
           - aarch64-unknown-linux-gnu
           - aarch64_be-unknown-linux-gnu
-          #- alphaev56-unknown-linux-gnu
-          #- alphaev67-unknown-linux-gnu
           - alpha-unknown-linux-gnu
           - arm-unknown-linux-gnueabi
           - arm-unknown-linux-gnueabihf
@@ -58,7 +56,6 @@ jobs:
           - armv7-unknown-linux-gnueabi
           - armv7-unknown-linux-gnueabihf
           - hppa-unknown-linux-gnu
-          #- hppa64-unknown-linux-gnu
           - i486-unknown-linux-gnu
           - i586-unknown-linux-gnu
           - i686-unknown-linux-gnu
