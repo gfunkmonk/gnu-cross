@@ -15,8 +15,8 @@ if [[ ! -d "targets/${TARGET}" ]]; then
 fi
 
 # packages
-DEBIAN_FRONTEND=noninteractive sudo apt-get update
-DEBIAN_FRONTEND=noninteractive sudo apt-get install -y --no-install-recommends \
+sudo apt-get update
+sudo apt-get install -y --no-install-recommends \
   automake \
   bison \
   bzip2 \
