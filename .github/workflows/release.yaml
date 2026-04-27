@@ -110,7 +110,7 @@ jobs:
         run: |
           test -f /usr/share/doc/kitware-archive-keyring/copyright || wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
           echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ noble main' | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
-      - name: CCACHE Shit
+      - name: Configure ccache
         run: |
           DEBIAN_FRONTEND=noninteractive sudo apt-get -y update
           DEBIAN_FRONTEND=noninteractive sudo apt-get -y install apt-utils ccache ca-certificates gpg wget libzstd-dev
@@ -125,7 +125,6 @@ jobs:
           CCACHE_INODECACHE=true
           CCACHE_NLEVELS=4
           CCACHE_COMPILERCHECK=content
-          #CCACHE_DEPEND=false
           CCACHE_DIRECT=true
           EOF
 

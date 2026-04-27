@@ -8,8 +8,7 @@ This is a simple, lightweight project for making cross-compilation toolchain wit
 |-------------------------------|---------|----------|--------|-------|--------|
 | aarch64-unknown-linux-gnu     | 6.18.23 | 2.46     | 15.2.0 | 2.43  | 2.41.0 |
 | aarch64_be-unknown-linux-gnu  | 6.18.23 | 2.46     | 15.2.0 | 2.43  | 2.41.0 |
-| alphaev56-unknown-linux-gnu   | 6.18.23 | 2.46     | 15.2.0 | 2.43  | 2.41.0 |
-| alphaev67-unknown-linux-gnu   | 6.18.23 | 2.46     | 15.2.0 | 2.43  | 2.41.0 |
+| alpha-unknown-linux-gnu       | 6.18.23 | 2.46     | 15.2.0 | 2.43  | 2.41.0 |
 | arm-unknown-linux-gnueabi     | 6.18.23 | 2.46     | 15.2.0 | 2.43  | 2.41.0 |
 | arm-unknown-linux-gnueabihf   | 6.18.23 | 2.46     | 15.2.0 | 2.43  | 2.41.0 |
 | armv4t-unknown-linux-gnueabi  | 6.18.23 | 2.46     | 15.2.0 | 2.43  | 2.41.0 |
@@ -50,7 +49,7 @@ This is a simple, lightweight project for making cross-compilation toolchain wit
 
 ## How to use
 
-Download the tarball from the [release page](https://github.com/cross-tools/gnu-cross/releases) and extract it to `/opt/x-tools`:
+Download the tarball from the [release page](https://github.com/gfunkmonk/gnu-cross/releases) and extract it to `/opt/x-tools`:
 
 ```sh
 sudo mkdir -p /opt/x-tools
