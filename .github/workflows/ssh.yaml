@@ -78,7 +78,7 @@ jobs:
           CCACHE_INODECACHE=true
           CCACHE_NLEVELS=4
           CCACHE_COMPILERCHECK=content
-          CCACHE_DEPEND=true
+          CCACHE_DIRECT=true
           EOF
 
           # Setup CCACHE Dir
