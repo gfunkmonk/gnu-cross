@@ -19,3 +19,4 @@ CT_BINUTILS_V_2_46=y
 CT_TARGET_CFLAGS="-mno-altivec -m32 -mlittle-endian -fno-stack-protector -mno-multiple -mno-string"
 CT_ARCH_CPU="powerpc"
 CT_ASFLAGS="-mno-multiple"
+# CT_SHOW_CT_VERSION is not set yet
