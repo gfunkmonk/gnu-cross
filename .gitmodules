@@ -1,0 +1,4 @@
+[submodule "builder"]
+	path = builder
+	url = git@github.com:gfunkmonk/crosstool-ng.git
+	branch = master
