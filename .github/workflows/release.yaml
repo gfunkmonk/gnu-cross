@@ -39,8 +39,8 @@ permissions:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-24.04
-    timeout-minutes: 150
+    runs-on: ubuntu-26.04
+      max-parallel: 6
     strategy:
       fail-fast: false
       matrix:
@@ -150,7 +150,7 @@ jobs:
           verbose: 2
           save: true
       - name: Restore tarballs cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: /mnt/tarballs
           key: >-
@@ -170,9 +170,15 @@ jobs:
         name: SSH Server-ing
         uses: valeriangalliat/action-sshd-cloudflared@v4
       - name: Build
-        run: |
-          sudo rm -rf /opt/*
-          ./scripts/make ${{ matrix.target }}
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 40
+          max_attempts: 2
+          command: |
+            umask 0022
+            sudo rm -rf /opt/*
+            chmod +x ./scripts/make
+            bash ./scripts/make ${{ matrix.target }}
       - name: Upload build log
         if: failure()
         uses: actions/upload-artifact@v7
@@ -182,7 +188,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
       #- name: Save tarballs cache
-      #  uses: actions/cache/save@v5
+      #  uses: actions/cache/save@v6
       #  if: always()
       #  with:
       #    path: /mnt/tarballs
