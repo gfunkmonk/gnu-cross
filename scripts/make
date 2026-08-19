@@ -8,6 +8,7 @@ if [[ $# -lt 1 || -z "$1" ]]; then
     echo "Example: $0 x86_64-unknown-linux-gnu" >&2
     exit 1
 fi
+
 TARGET=$1
 if [[ ! -d "targets/${TARGET}" ]]; then
     echo "Error: target '${TARGET}' not found in targets/" >&2
@@ -51,9 +52,15 @@ popd
 rm -rf build
 mkdir -p build
 cp targets/"${TARGET}"/config build/.config
+
 # Configure tarballs directory for download caching
+if [[  ! -d "/mnt/tarballs" ]]; then
+  sudo mkdir -p /mnt/tarballs 
+  sudo chmod 0777 /mnt/tarballs
+fi
 echo 'CT_LOCAL_TARBALLS_DIR="/mnt/tarballs"' >> build/.config
 echo 'CT_SAVE_TARBALLS=y' >> build/.config
+
 # Strip mold for architectures it doesn't support
 case "${TARGET}" in
     or1k-*|microblaze*|mips*)
