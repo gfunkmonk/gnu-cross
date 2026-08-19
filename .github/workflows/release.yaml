@@ -149,16 +149,23 @@ jobs:
           max-size: 5000MB
           verbose: 2
           save: true
-      #- name: Restore tarballs cache
-      #  uses: actions/cache/restore@v5
-      #  with:
-      #    path: /mnt/tarballs
-      #    key: >-
-      #      tarballs-${{ runner.os }}-${{ matrix.target }}-${{
-      #      hashFiles(format('targets/{0}/config', matrix.target)) }}
-      #    restore-keys: |
-      #      tarballs-${{ runner.os }}-${{ matrix.target }}-
-      #      tarballs-${{ runner.os }}-
+      - name: Restore tarballs cache
+        uses: actions/cache/restore@v5
+        with:
+          path: /mnt/tarballs
+          key: >-
+            tarballs-${{ runner.os }}-${{ matrix.target }}-${{
+            hashFiles(format('targets/{0}/config', matrix.target)) }}
+          restore-keys: |
+            tarballs-${{ runner.os }}-${{ matrix.target }}-
+            tarballs-${{ runner.os }}-
+      - name: CCACHE Cache
+        uses: actions/cache@v6
+        with:
+          path: /mnt/ccache
+          key: ccache-${{ matrix.target }}-${{ github.run_id }}
+          restore-keys: |
+            ccache-${{ matrix.target }}-
       - if: '${{ inputs.sshserver }}'
         name: SSH Server-ing
         uses: valeriangalliat/action-sshd-cloudflared@v4
