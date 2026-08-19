@@ -304,7 +304,7 @@ jobs:
           retention-days: 1
   build_mips:
     name: Build MIPS (${{ matrix.target }})
-    runs-on: ubuntu-26.04
+    runs-on: tenki-standard-small-2c-4g
     strategy:
       fail-fast: false
       matrix:
@@ -445,7 +445,7 @@ jobs:
           - powerpc64-unknown-linux-gnu
           - powerpc64le-unknown-linux-gnu
           - powerpcle-unknown-linux-gnu
-          - powerpcle-unknown-linux-gnusf          
+          - powerpcle-unknown-linux-gnusf
           - s390-ibm-linux-gnu
           - s390x-ibm-linux-gnu
     steps:
