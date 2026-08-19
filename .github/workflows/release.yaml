@@ -40,7 +40,6 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-26.04
-      max-parallel: 6
     strategy:
       fail-fast: false
       matrix:
@@ -172,7 +171,7 @@ jobs:
       - name: Build
         uses: nick-fields/retry@v3
         with:
-          timeout_minutes: 40
+          timeout_minutes: 80
           max_attempts: 2
           command: |
             umask 0022
