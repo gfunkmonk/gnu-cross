@@ -2,6 +2,8 @@
 
 <img width="1005" height="505" alt="gnu-c-library" src="https://github.com/user-attachments/assets/c67ed85a-29f3-45c1-b211-97df0f799811" />
 
+[![Release](https://github.com/gfunkmonk/gnu-cross/actions/workflows/release.yaml/badge.svg)](https://github.com/gfunkmonk/gnu-cross/actions/workflows/release.yaml)
+
 $\large{\textit{\color{#b8bedd}{This is a simple, lightweight project for making cross-compilation toolchain with gnu libc.}}}$
 
 ## Supported targets
