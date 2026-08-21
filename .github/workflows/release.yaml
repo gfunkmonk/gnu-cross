@@ -3,12 +3,12 @@ name: Release
   workflow_dispatch:
     inputs:
       freespace:
-        description: Free Up Disk Space
+        description: Run Clear Disk Space
         required: true
         type: boolean
         default: false
       swapspace:
-        description: Add Swap ̳Space
+        description: Add Swap
         required: true
         type: boolean
         default: false
@@ -16,7 +16,7 @@ name: Release
         description: Swap Size (in gb)
         type: choice
         required: false
-        options: [3, 5, 10]
+        options: ['3', '5', '10']
         default: 5
       sshserver:
         description: Run SSH Server before build
@@ -37,8 +37,8 @@ concurrency:
 permissions:
   contents: read
 jobs:
-  build:
-    name: Build
+  build_arm:
+    name: Build ARM (${{ matrix.target }})
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -55,35 +55,6 @@ jobs:
           - armv6-unknown-linux-gnueabihf
           - armv7-unknown-linux-gnueabi
           - armv7-unknown-linux-gnueabihf
-          - hppa-unknown-linux-gnu
-          - i486-unknown-linux-gnu
-          - i586-unknown-linux-gnu
-          - i686-unknown-linux-gnu
-          - loongarch64-unknown-linux-gnu
-          - m68k-unknown-linux-gnu
-          - microblaze-xilinx-linux-gnu
-          - microblazeel-xilinx-linux-gnu
-          - mips-unknown-linux-gnu
-          - mips-unknown-linux-gnusf
-          - mips64-unknown-linux-gnu
-          - mips64el-unknown-linux-gnu
-          - mipsel-unknown-linux-gnu
-          - mipsel-unknown-linux-gnusf
-          - or1k-unknown-linux-gnu
-          - powerpc-unknown-linux-gnu
-          - powerpc-unknown-linux-gnusf
-          - powerpc64-unknown-linux-gnu
-          - powerpc64le-unknown-linux-gnu
-          - powerpcle-unknown-linux-gnu
-          - powerpcle-unknown-linux-gnusf
-          - riscv32-unknown-linux-gnu
-          - riscv64-unknown-linux-gnu
-          - s390-ibm-linux-gnu
-          - s390x-ibm-linux-gnu
-          - sh4-multilib-linux-gnu
-          - sparc-unknown-linux-gnu
-          - sparc64-unknown-linux-gnu
-          - x86_64-unknown-linux-gnu
     steps:
       - if: '${{ inputs.freespace }}'
         name: Free Up Disk Space
@@ -110,13 +81,13 @@ jobs:
         run: |
           test -f /usr/share/doc/kitware-archive-keyring/copyright || wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
           echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ noble main' | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
-      - name: Configure ccache
+      - name: Setup ccache
         run: |
           DEBIAN_FRONTEND=noninteractive sudo apt-get -y update
-          DEBIAN_FRONTEND=noninteractive sudo apt-get -y install apt-utils ccache ca-certificates gpg wget libzstd-dev
+          DEBIAN_FRONTEND=noninteractive sudo apt-get -y install apt-utils ccache ca-certificates gpg wget zstd
 
           cat >> $GITHUB_ENV << 'EOF'
-          CCACHE_SLOPPINESS=locale,time_macros,random_seed,file_macro,include_file_mtime,include_file_ctime,file_stat_matches,pch_defines,clang_index_store,include_file_ctime,ivfsoverlay,modules,system_headers
+          CCACHE_SLOPPINESS=file_macro,locale,time_macros
           CCACHE_NOHASHDIR=true
           CCACHE_COMPRESS=true
           CCACHE_COMPRESSLEVEL=16
@@ -125,7 +96,7 @@ jobs:
           CCACHE_INODECACHE=true
           CCACHE_NLEVELS=4
           CCACHE_COMPILERCHECK=content
-          CCACHE_DIRECT=true
+          CCACHE_DEPEND=true
           EOF
 
           # Setup CCACHE Dir
@@ -149,7 +120,7 @@ jobs:
           verbose: 2
           save: true
       - name: Restore tarballs cache
-        uses: actions/cache/restore@v6
+        uses: actions/cache/restore@v5
         with:
           path: /mnt/tarballs
           key: >-
@@ -158,20 +129,13 @@ jobs:
           restore-keys: |
             tarballs-${{ runner.os }}-${{ matrix.target }}-
             tarballs-${{ runner.os }}-
-      - name: CCACHE Cache
-        uses: actions/cache@v6
-        with:
-          path: /mnt/ccache
-          key: ccache-${{ matrix.target }}-${{ github.run_id }}
-          restore-keys: |
-            ccache-${{ matrix.target }}-
       - if: '${{ inputs.sshserver }}'
         name: SSH Server-ing
         uses: valeriangalliat/action-sshd-cloudflared@v4
       - name: Build
         uses: nick-fields/retry@v3
         with:
-          timeout_minutes: 80
+          timeout_minutes: 90
           max_attempts: 2
           command: |
             umask 0022
@@ -187,7 +151,532 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
       #- name: Save tarballs cache
-      #  uses: actions/cache/save@v6
+      #  uses: actions/cache/save@v5
+      #  if: always()
+      #  with:
+      #    path: /mnt/tarballs
+      #    key: >-
+      #      tarballs-${{ runner.os }}-${{ matrix.target }}-${{
+      #      hashFiles(format('targets/{0}/config', matrix.target)) }}
+      - name: Upload package
+        uses: actions/upload-artifact@v7
+        with:
+          name: '${{ matrix.target }}.tar.xz'
+          path: '${{ matrix.target }}.tar.xz'
+          if-no-files-found: error
+          retention-days: 1
+      - name: Upload checksum
+        uses: actions/upload-artifact@v7
+        with:
+          name: '${{ matrix.target }}.tar.xz.sha256'
+          path: '${{ matrix.target }}.tar.xz.sha256'
+          if-no-files-found: error
+          retention-days: 1
+  build_x86:
+    name: Build x86 (${{ matrix.target }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - i486-unknown-linux-gnu
+          - i586-unknown-linux-gnu
+          - i686-unknown-linux-gnu
+          - x86_64-unknown-linux-gnu
+          - hppa-unknown-linux-gnu
+          - m68k-unknown-linux-gnu
+    steps:
+      - if: '${{ inputs.freespace }}'
+        name: Free Up Disk Space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          swap-storage: false
+          large-packages: true
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: false
+          docker-images: true
+      - if: '${{ inputs.swapspace }}'
+        name: Add Swap Space for Build
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: '${{ inputs.swapsize }}'
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          submodules: true
+      - name: Enable Kitware Repository
+        run: |
+          test -f /usr/share/doc/kitware-archive-keyring/copyright || wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
+          echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ noble main' | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
+      - name: Setup ccache
+        run: |
+          DEBIAN_FRONTEND=noninteractive sudo apt-get -y update
+          DEBIAN_FRONTEND=noninteractive sudo apt-get -y install apt-utils ccache ca-certificates gpg wget zstd
+
+          cat >> $GITHUB_ENV << 'EOF'
+          CCACHE_SLOPPINESS=file_macro,locale,time_macros
+          CCACHE_NOHASHDIR=true
+          CCACHE_COMPRESS=true
+          CCACHE_COMPRESSLEVEL=16
+          CCACHE_NOFILECLONE=true
+          CCACHE_NOHARDLINK=true
+          CCACHE_INODECACHE=true
+          CCACHE_NLEVELS=4
+          CCACHE_COMPILERCHECK=content
+          CCACHE_DEPEND=true
+          EOF
+
+          # Setup CCACHE Dir
+          sudo mkdir -p /mnt/ccache
+          sudo chown -R $USER:$USER /mnt/ccache
+          echo "CCACHE_DIR=/mnt/ccache" >> $GITHUB_ENV
+          echo "CCACHE Dir Set!"
+          # Setup tarballs dir for download caching
+          #sudo mkdir -p /mnt/tarballs
+          #sudo chown -R $USER:$USER /mnt/tarballs
+          df -h
+          echo "CCACHE Environment set!"
+      - name: Enable the CCACHE
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          create-symlink: 'true'
+          key: 'ccache-${{ runner.os }}-${{ matrix.target }}'
+          restore-keys: |
+            ccache-${{ runner.os }}-
+          max-size: 5000MB
+          verbose: 2
+          save: true
+      - name: Restore tarballs cache
+        uses: actions/cache/restore@v5
+        with:
+          path: /mnt/tarballs
+          key: >-
+            tarballs-${{ runner.os }}-${{ matrix.target }}-${{
+            hashFiles(format('targets/{0}/config', matrix.target)) }}
+          restore-keys: |
+            tarballs-${{ runner.os }}-${{ matrix.target }}-
+            tarballs-${{ runner.os }}-
+      - if: '${{ inputs.sshserver }}'
+        name: SSH Server-ing
+        uses: valeriangalliat/action-sshd-cloudflared@v4
+      - name: Build
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 2
+          command: |
+            umask 0022
+            sudo rm -rf /opt/*
+            chmod +x ./scripts/make
+            bash ./scripts/make ${{ matrix.target }}
+      - name: Upload build log
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: '${{ matrix.target }}-build.log'
+          path: build/build.log
+          if-no-files-found: warn
+          retention-days: 7
+      #- name: Save tarballs cache
+      #  uses: actions/cache/save@v5
+      #  if: always()
+      #  with:
+      #    path: /mnt/tarballs
+      #    key: >-
+      #      tarballs-${{ runner.os }}-${{ matrix.target }}-${{
+      #      hashFiles(format('targets/{0}/config', matrix.target)) }}
+      - name: Upload package
+        uses: actions/upload-artifact@v7
+        with:
+          name: '${{ matrix.target }}.tar.xz'
+          path: '${{ matrix.target }}.tar.xz'
+          if-no-files-found: error
+          retention-days: 1
+      - name: Upload checksum
+        uses: actions/upload-artifact@v7
+        with:
+          name: '${{ matrix.target }}.tar.xz.sha256'
+          path: '${{ matrix.target }}.tar.xz.sha256'
+          if-no-files-found: error
+          retention-days: 1
+  build_mips:
+    name: Build MIPS (${{ matrix.target }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - loongarch64-unknown-linux-gnu
+          - mips-unknown-linux-gnu
+          - mips-unknown-linux-gnusf
+          - mips64-unknown-linux-gnu
+          - mips64el-unknown-linux-gnu
+          - mipsel-unknown-linux-gnu
+          - mipsel-unknown-linux-gnusf
+    steps:
+      - if: '${{ inputs.freespace }}'
+        name: Free Up Disk Space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          swap-storage: false
+          large-packages: true
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: false
+          docker-images: true
+      - if: '${{ inputs.swapspace }}'
+        name: Add Swap Space for Build
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: '${{ inputs.swapsize }}'
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          submodules: true
+      - name: Enable Kitware Repository
+        run: |
+          test -f /usr/share/doc/kitware-archive-keyring/copyright || wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
+          echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ noble main' | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
+      - name: Setup ccache
+        run: |
+          DEBIAN_FRONTEND=noninteractive sudo apt-get -y update
+          DEBIAN_FRONTEND=noninteractive sudo apt-get -y install apt-utils ccache ca-certificates gpg wget zstd
+
+          cat >> $GITHUB_ENV << 'EOF'
+          CCACHE_SLOPPINESS=file_macro,locale,time_macros
+          CCACHE_NOHASHDIR=true
+          CCACHE_COMPRESS=true
+          CCACHE_COMPRESSLEVEL=16
+          CCACHE_NOFILECLONE=true
+          CCACHE_NOHARDLINK=true
+          CCACHE_INODECACHE=true
+          CCACHE_NLEVELS=4
+          CCACHE_COMPILERCHECK=content
+          CCACHE_DEPEND=true
+          EOF
+
+          # Setup CCACHE Dir
+          sudo mkdir -p /mnt/ccache
+          sudo chown -R $USER:$USER /mnt/ccache
+          echo "CCACHE_DIR=/mnt/ccache" >> $GITHUB_ENV
+          echo "CCACHE Dir Set!"
+          # Setup tarballs dir for download caching
+          #sudo mkdir -p /mnt/tarballs
+          #sudo chown -R $USER:$USER /mnt/tarballs
+          df -h
+          echo "CCACHE Environment set!"
+      - name: Enable the CCACHE
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          create-symlink: 'true'
+          key: 'ccache-${{ runner.os }}-${{ matrix.target }}'
+          restore-keys: |
+            ccache-${{ runner.os }}-
+          max-size: 5000MB
+          verbose: 2
+          save: true
+      - name: Restore tarballs cache
+        uses: actions/cache/restore@v5
+        with:
+          path: /mnt/tarballs
+          key: >-
+            tarballs-${{ runner.os }}-${{ matrix.target }}-${{
+            hashFiles(format('targets/{0}/config', matrix.target)) }}
+          restore-keys: |
+            tarballs-${{ runner.os }}-${{ matrix.target }}-
+            tarballs-${{ runner.os }}-
+      - if: '${{ inputs.sshserver }}'
+        name: SSH Server-ing
+        uses: valeriangalliat/action-sshd-cloudflared@v4
+      - name: Build
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 2
+          command: |
+            umask 0022
+            sudo rm -rf /opt/*
+            chmod +x ./scripts/make
+            bash ./scripts/make ${{ matrix.target }}
+      - name: Upload build log
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: '${{ matrix.target }}-build.log'
+          path: build/build.log
+          if-no-files-found: warn
+          retention-days: 7
+      #- name: Save tarballs cache
+      #  uses: actions/cache/save@v5
+      #  if: always()
+      #  with:
+      #    path: /mnt/tarballs
+      #    key: >-
+      #      tarballs-${{ runner.os }}-${{ matrix.target }}-${{
+      #      hashFiles(format('targets/{0}/config', matrix.target)) }}
+      - name: Upload package
+        uses: actions/upload-artifact@v7
+        with:
+          name: '${{ matrix.target }}.tar.xz'
+          path: '${{ matrix.target }}.tar.xz'
+          if-no-files-found: error
+          retention-days: 1
+      - name: Upload checksum
+        uses: actions/upload-artifact@v7
+        with:
+          name: '${{ matrix.target }}.tar.xz.sha256'
+          path: '${{ matrix.target }}.tar.xz.sha256'
+          if-no-files-found: error
+          retention-days: 1
+  build_ppc:
+    name: Build PPC (${{ matrix.target }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - powerpc-unknown-linux-gnu
+          - powerpc-unknown-linux-gnusf
+          - powerpc64-unknown-linux-gnu
+          - powerpc64le-unknown-linux-gnu
+          - powerpcle-unknown-linux-gnu
+          - powerpcle-unknown-linux-gnusf          
+          - s390-ibm-linux-gnu
+          - s390x-ibm-linux-gnu
+    steps:
+      - if: '${{ inputs.freespace }}'
+        name: Free Up Disk Space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          swap-storage: false
+          large-packages: true
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: false
+          docker-images: true
+      - if: '${{ inputs.swapspace }}'
+        name: Add Swap Space for Build
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: '${{ inputs.swapsize }}'
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          submodules: true
+      - name: Enable Kitware Repository
+        run: |
+          test -f /usr/share/doc/kitware-archive-keyring/copyright || wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
+          echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ noble main' | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
+      - name: Setup ccache
+        run: |
+          DEBIAN_FRONTEND=noninteractive sudo apt-get -y update
+          DEBIAN_FRONTEND=noninteractive sudo apt-get -y install apt-utils ccache ca-certificates gpg wget zstd
+
+          cat >> $GITHUB_ENV << 'EOF'
+          CCACHE_SLOPPINESS=file_macro,locale,time_macros
+          CCACHE_NOHASHDIR=true
+          CCACHE_COMPRESS=true
+          CCACHE_COMPRESSLEVEL=16
+          CCACHE_NOFILECLONE=true
+          CCACHE_NOHARDLINK=true
+          CCACHE_INODECACHE=true
+          CCACHE_NLEVELS=4
+          CCACHE_COMPILERCHECK=content
+          CCACHE_DEPEND=true
+          EOF
+
+          # Setup CCACHE Dir
+          sudo mkdir -p /mnt/ccache
+          sudo chown -R $USER:$USER /mnt/ccache
+          echo "CCACHE_DIR=/mnt/ccache" >> $GITHUB_ENV
+          echo "CCACHE Dir Set!"
+          # Setup tarballs dir for download caching
+          #sudo mkdir -p /mnt/tarballs
+          #sudo chown -R $USER:$USER /mnt/tarballs
+          df -h
+          echo "CCACHE Environment set!"
+      - name: Enable the CCACHE
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          create-symlink: 'true'
+          key: 'ccache-${{ runner.os }}-${{ matrix.target }}'
+          restore-keys: |
+            ccache-${{ runner.os }}-
+          max-size: 5000MB
+          verbose: 2
+          save: true
+      - name: Restore tarballs cache
+        uses: actions/cache/restore@v5
+        with:
+          path: /mnt/tarballs
+          key: >-
+            tarballs-${{ runner.os }}-${{ matrix.target }}-${{
+            hashFiles(format('targets/{0}/config', matrix.target)) }}
+          restore-keys: |
+            tarballs-${{ runner.os }}-${{ matrix.target }}-
+            tarballs-${{ runner.os }}-
+      - if: '${{ inputs.sshserver }}'
+        name: SSH Server-ing
+        uses: valeriangalliat/action-sshd-cloudflared@v4
+      - name: Build
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 2
+          command: |
+            umask 0022
+            sudo rm -rf /opt/*
+            chmod +x ./scripts/make
+            bash ./scripts/make ${{ matrix.target }}
+      - name: Upload build log
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: '${{ matrix.target }}-build.log'
+          path: build/build.log
+          if-no-files-found: warn
+          retention-days: 7
+      #- name: Save tarballs cache
+      #  uses: actions/cache/save@v5
+      #  if: always()
+      #  with:
+      #    path: /mnt/tarballs
+      #    key: >-
+      #      tarballs-${{ runner.os }}-${{ matrix.target }}-${{
+      #      hashFiles(format('targets/{0}/config', matrix.target)) }}
+      - name: Upload package
+        uses: actions/upload-artifact@v7
+        with:
+          name: '${{ matrix.target }}.tar.xz'
+          path: '${{ matrix.target }}.tar.xz'
+          if-no-files-found: error
+          retention-days: 1
+      - name: Upload checksum
+        uses: actions/upload-artifact@v7
+        with:
+          name: '${{ matrix.target }}.tar.xz.sha256'
+          path: '${{ matrix.target }}.tar.xz.sha256'
+          if-no-files-found: error
+          retention-days: 1
+  build_misc:
+    name: Build Misc (${{ matrix.target }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - riscv32-unknown-linux-gnu
+          - riscv64-unknown-linux-gnu
+          - or1k-unknown-linux-gnu
+          - sparc-unknown-linux-gnu
+          - sparc64-unknown-linux-gnu
+          - sh4-multilib-linux-gnu
+          - microblaze-xilinx-linux-gnu
+          - microblazeel-xilinx-linux-gnu
+    steps:
+      - if: '${{ inputs.freespace }}'
+        name: Free Up Disk Space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          swap-storage: false
+          large-packages: true
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: false
+          docker-images: true
+      - if: '${{ inputs.swapspace }}'
+        name: Add Swap Space for Build
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: '${{ inputs.swapsize }}'
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          submodules: true
+      - name: Enable Kitware Repository
+        run: |
+          test -f /usr/share/doc/kitware-archive-keyring/copyright || wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
+          echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ noble main' | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
+      - name: Setup ccache
+        run: |
+          DEBIAN_FRONTEND=noninteractive sudo apt-get -y update
+          DEBIAN_FRONTEND=noninteractive sudo apt-get -y install apt-utils ccache ca-certificates gpg wget zstd
+
+          cat >> $GITHUB_ENV << 'EOF'
+          CCACHE_SLOPPINESS=file_macro,locale,time_macros
+          CCACHE_NOHASHDIR=true
+          CCACHE_COMPRESS=true
+          CCACHE_COMPRESSLEVEL=16
+          CCACHE_NOFILECLONE=true
+          CCACHE_NOHARDLINK=true
+          CCACHE_INODECACHE=true
+          CCACHE_NLEVELS=4
+          CCACHE_COMPILERCHECK=content
+          CCACHE_DEPEND=true
+          EOF
+
+          # Setup CCACHE Dir
+          sudo mkdir -p /mnt/ccache
+          sudo chown -R $USER:$USER /mnt/ccache
+          echo "CCACHE_DIR=/mnt/ccache" >> $GITHUB_ENV
+          echo "CCACHE Dir Set!"
+          # Setup tarballs dir for download caching
+          #sudo mkdir -p /mnt/tarballs
+          #sudo chown -R $USER:$USER /mnt/tarballs
+          df -h
+          echo "CCACHE Environment set!"
+      - name: Enable the CCACHE
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          create-symlink: 'true'
+          key: 'ccache-${{ runner.os }}-${{ matrix.target }}'
+          restore-keys: |
+            ccache-${{ runner.os }}-
+          max-size: 5000MB
+          verbose: 2
+          save: true
+      - name: Restore tarballs cache
+        uses: actions/cache/restore@v5
+        with:
+          path: /mnt/tarballs
+          key: >-
+            tarballs-${{ runner.os }}-${{ matrix.target }}-${{
+            hashFiles(format('targets/{0}/config', matrix.target)) }}
+          restore-keys: |
+            tarballs-${{ runner.os }}-${{ matrix.target }}-
+            tarballs-${{ runner.os }}-
+      - if: '${{ inputs.sshserver }}'
+        name: SSH Server-ing
+        uses: valeriangalliat/action-sshd-cloudflared@v4
+      - name: Build
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 2
+          command: |
+            umask 0022
+            sudo rm -rf /opt/*
+            chmod +x ./scripts/make
+            bash ./scripts/make ${{ matrix.target }}
+      - name: Upload build log
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: '${{ matrix.target }}-build.log'
+          path: build/build.log
+          if-no-files-found: warn
+          retention-days: 7
+      #- name: Save tarballs cache
+      #  uses: actions/cache/save@v5
       #  if: always()
       #  with:
       #    path: /mnt/tarballs
@@ -212,7 +701,11 @@ jobs:
     name: Release
     runs-on: ubuntu-slim
     needs:
-      - build
+      - build_arm
+      - build_x86
+      - build_mips
+      - build_ppc
+      - build_misc
     if: |
       !cancelled() && github.event.inputs.make_release == 'true'
     permissions:
