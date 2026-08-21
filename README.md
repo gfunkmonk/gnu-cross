@@ -1,5 +1,7 @@
 # $\textbf{\color{#a6b07e}{gnu-cross}}$ 
 
+<img width="1005" height="505" alt="gnu-c-library" src="https://github.com/user-attachments/assets/c67ed85a-29f3-45c1-b211-97df0f799811" />
+
 $\large{\textit{\color{#b8bedd}{This is a simple, lightweight project for making cross-compilation toolchain with gnu libc.}}}$
 
 ## Supported targets
