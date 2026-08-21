@@ -133,15 +133,9 @@ jobs:
         name: SSH Server-ing
         uses: valeriangalliat/action-sshd-cloudflared@v4
       - name: Build
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 90
-          max_attempts: 2
-          command: |
-            umask 0022
-            sudo rm -rf /opt/*
-            chmod +x ./scripts/make
-            bash ./scripts/make ${{ matrix.target }}
+        run: |
+          sudo rm -rf /opt/*
+          ./scripts/make ${{ matrix.target }}
       - name: Upload build log
         if: failure()
         uses: actions/upload-artifact@v7
@@ -263,15 +257,9 @@ jobs:
         name: SSH Server-ing
         uses: valeriangalliat/action-sshd-cloudflared@v4
       - name: Build
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 60
-          max_attempts: 2
-          command: |
-            umask 0022
-            sudo rm -rf /opt/*
-            chmod +x ./scripts/make
-            bash ./scripts/make ${{ matrix.target }}
+        run: |
+          sudo rm -rf /opt/*
+          ./scripts/make ${{ matrix.target }}
       - name: Upload build log
         if: failure()
         uses: actions/upload-artifact@v7
@@ -394,15 +382,9 @@ jobs:
         name: SSH Server-ing
         uses: valeriangalliat/action-sshd-cloudflared@v4
       - name: Build
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 60
-          max_attempts: 2
-          command: |
-            umask 0022
-            sudo rm -rf /opt/*
-            chmod +x ./scripts/make
-            bash ./scripts/make ${{ matrix.target }}
+        run: |
+          sudo rm -rf /opt/*
+          ./scripts/make ${{ matrix.target }}
       - name: Upload build log
         if: failure()
         uses: actions/upload-artifact@v7
@@ -526,15 +508,9 @@ jobs:
         name: SSH Server-ing
         uses: valeriangalliat/action-sshd-cloudflared@v4
       - name: Build
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 60
-          max_attempts: 2
-          command: |
-            umask 0022
-            sudo rm -rf /opt/*
-            chmod +x ./scripts/make
-            bash ./scripts/make ${{ matrix.target }}
+        run: |
+          sudo rm -rf /opt/*
+          ./scripts/make ${{ matrix.target }}
       - name: Upload build log
         if: failure()
         uses: actions/upload-artifact@v7
@@ -658,15 +634,9 @@ jobs:
         name: SSH Server-ing
         uses: valeriangalliat/action-sshd-cloudflared@v4
       - name: Build
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 60
-          max_attempts: 2
-          command: |
-            umask 0022
-            sudo rm -rf /opt/*
-            chmod +x ./scripts/make
-            bash ./scripts/make ${{ matrix.target }}
+        run: |
+          sudo rm -rf /opt/*
+          ./scripts/make ${{ matrix.target }}
       - name: Upload build log
         if: failure()
         uses: actions/upload-artifact@v7
